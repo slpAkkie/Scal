@@ -25,7 +25,14 @@
  *
  * @var array
  */
-$autoload_data = json_decode(file_get_contents(__DIR__ . '/.autoload.json'), true);
+$autoload_data = json_decode(@file_get_contents(__DIR__ . '/.autoload.json'), true);
+
+/**
+ * Если чтение файла не удалось,
+ * значит никаких специально определенных namespace'ов нет
+ * Установим пустой массив
+ */
+$autoload_data || $autoload_data = array();
 
 
 
