@@ -18,4 +18,4 @@
 
 ## Автор
 
-slpAkkie
+Alexandr Shamanin
