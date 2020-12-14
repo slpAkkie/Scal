@@ -5,8 +5,12 @@
 
 /**
  * Вывести содержимое переменной
+ *
+ * @param mixed $var значение которое необходимо вывести на экран
+ *
+ * @return void
  */
-function vd( $var )
+function vd( $var ) : void
 {
 
   echo '<pre style="font-size: 24px">';
@@ -17,8 +21,12 @@ function vd( $var )
 
 /**
  * Вывести содержимое переменной и завершить выполнение скрипта
+ *
+ * @param mixed $var значение которое необходимо вывести на экран
+ *
+ * @return void
  */
-function vde( $var )
+function vde( $var ) : void
 {
 
   vd( $var );
