@@ -32,7 +32,7 @@ function Mito( string $class ) : void
    * Загрузка конфигурации
    * Файл Mito.conf.json конфигурации должен лежать рядом с Mito.php
    *
-   * @var bool|array|null
+   * @var bool|array|null Конфигурация
    */
   static $__conf = false;
 
@@ -47,23 +47,17 @@ function Mito( string $class ) : void
   $class = explode( __NS, $class );
 
   /**
-   * namespace подключаемого класса
-   *
-   * @var string
+   * @var string namespace подключаемого класса
    */
   $namespace = join( __DS, array_slice( $class, 0, -1, true ) );
 
   /**
-   * Дочернии каталоги для каталога namespace`а
-   *
-   * @var string
+   * @var string Дочернии каталоги для каталога namespace`а
    */
   $inner_path = '';
 
   /**
-   * Имя подключаемого класса
-   *
-   * @var string
+   * @var string Имя подключаемого класса
    */
   $class_name = join( null, array_slice( $class, -1, 1, true ) );
 
@@ -100,9 +94,7 @@ function Mito( string $class ) : void
 
         foreach ( $ns_pathways as $__i => $path ) {
           /**
-           * Количество звездочек (Указатель на рекурсивный просмотр дочерних каталогов) в пути
-           *
-           * @var int
+           * @var int Количество звездочек (Указатель на рекурсивный просмотр дочерних каталогов) в пути
            */
           $star_count = 0;
 
@@ -115,9 +107,7 @@ function Mito( string $class ) : void
 
 
           /**
-           * Нужно ли искать во всех дочернихпапках
-           *
-           * @var bool
+           * @var bool Нужно ли искать во всех дочерних папках
            */
           $child_recursievly = (bool)($star_count === 1);
 
@@ -195,28 +185,21 @@ function find_file( string $dir, string $file_name ) : ?string
 /** Необходимые константы */
 
 /**
- * Разделитель каталогов
- *
- * @var string
+ * @var string Разделитель каталогов
  */
 define( '__DS', DIRECTORY_SEPARATOR );
+
 /**
- * Разделитель namespace`ов
- *
- * @var string
+ * @var string Разделитель namespace`ов
  */
 define( '__NS', '\\' );
 
 /**
- * Корневая директория проекта
- *
- * @var string
+ * @var string Корневая директория проекта
  */
 !defined( '__ROOT_DIR' ) && define( '__ROOT_DIR', __DIR__ );
 
 /**
- * Путь к файлу конфигурации
- *
- * @var string
+ * @var string Путь к файлу конфигурации
  */
 !defined( '__CONF_FILE' ) && define( '__CONF_FILE', __DIR__ . __DS . 'Mito.conf.json' );
