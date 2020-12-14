@@ -65,12 +65,30 @@ function Mito( string $input ) : void
 
 
 
+  /** Если namespace пустой, тогда вести поиск в корне проекта */
+
+  if ( $namespace === '' ) {
+    /** Нормализация пути */
+    $path = _DS;
+    /** Формирование пути к файлу */
+    $include_path = __DIR__ . $path . $class . _FEXT;
+
+    /** Если файл есть */
+    if ( file_exists( $include_path ) ) {
+      require_once( $include_path );
+      return;
+    }
+  }
+
+
+
+
   /** Проверка namespace`а подключаемого класса на соответствие namespace`ам в конфигурации */
   foreach ( $Mito_conf as $ns => $paths ) {
 
-    if ( gettype( $paths ) !== 'array' ) $paths = [ $paths ];
-
     if ( $namespace === trim( $ns, '\\' ) ) {
+
+      if ( gettype( $paths ) !== 'array' ) $paths = [ $paths ];
 
       foreach ( $paths as $i => $path ) {
         /** Нормализация пути */
@@ -84,6 +102,7 @@ function Mito( string $input ) : void
           break;
         }
       }
+
     }
 
   }
