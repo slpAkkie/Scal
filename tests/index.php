@@ -2,13 +2,20 @@
 
 <?php
 
+/**
+ * Входная точка для запуска тестирования
+ *
+ * @author Alexandr Shamanin (@slpAkkie)
+ * @version 1.0.1
+ */
+
 
 
 /** Подключение функций отладки */
 require_once( '../debug.php' );
 
 /** Опрежедение корневой папки проекта для Mito */
-define( 'MITO_PRD', __DIR__ );
+define( '__ROOT_DIR', __DIR__ );
 /** Подключение Mito */
 require_once( '../Mito.php' );
 

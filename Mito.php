@@ -10,8 +10,8 @@
  *
  *
  *
- * @version 1.0.0
  * @author Alexandr Shamanin (@slpAkkie)
+ * @version 1.2.4
  */
 
 
@@ -21,11 +21,11 @@
 /**
  * Автозагрузка классов
  *
- * @param string $input Входная строка (namespace\class)
+ * @param string $class Входная строка (namespace\class)
  *
  * @return void
  */
-function Mito( string $input ) : void
+function Mito( string $class ) : void
 {
 
   /**
@@ -34,63 +34,51 @@ function Mito( string $input ) : void
    *
    * @var bool|array|null
    */
-  static $Mito_conf = false;
+  static $__conf = false;
 
-  /** Mito_conf еще не была подгружена */
-  $Mito_conf === false && $Mito_conf = json_decode( @file_get_contents( MITO_CONF . MITO_DS . 'Mito.conf.json' ), true );
+  /** __conf еще не была подгружена */
+  $__conf === false && $__conf = json_decode( @file_get_contents( __CONF_FILE ), true );
   /** Файл конфигурации отсутствует */
-  $Mito_conf === null && $Mito_conf = array();
+  $__conf === null && $__conf = array();
 
 
 
-
-
-  /** Разбиение входной строки по MITO_NS (Разделитель namespace`ов) */
-  $input = explode( MITO_NS, $input );
+  /** Разбиение входной строки по __NS (Разделитель namespace`ов) */
+  $class = explode( __NS, $class );
 
   /**
-   * Namespace подключаемого класса
+   * namespace подключаемого класса
    *
    * @var string
    */
-  $namespace = join( MITO_DS, array_slice( $input, 0, -1, true ) );
+  $namespace = join( __DS, array_slice( $class, 0, -1, true ) );
 
   /**
-   * Часть namespace`а не входящая в проверку и сохраняющаяся при подстановке
+   * Дочернии каталоги для каталога namespace`а
    *
    * @var string
    */
-  $saved_path = '';
+  $inner_path = '';
 
   /**
    * Имя подключаемого класса
    *
    * @var string
    */
-  $class = join( null, array_slice( $input, -1, 1, true ) );
+  $class_name = join( null, array_slice( $class, -1, 1, true ) );
 
-  /**
-   * Найден ли подключаемый класс
-   *
-   * @var bool
-   */
-  $found = false;
+
 
 
 
   /** Если namespace пустой, тогда вести поиск в корне проекта */
 
-  if ( !$found && $namespace === '' ) {
-    /** Нормализация пути */
-    $path = MITO_DS;
+  if ( $namespace === '' ) {
     /** Формирование пути к файлу */
-    $include_path = MITO_PRD . $path . $class . MITO_FEXT;
+    $inc_path = __ROOT_DIR . __DS . $class_name . '.php';
 
     /** Если файл есть */
-    if ( file_exists( $include_path ) ) {
-      require_once( $include_path );
-      $found = true;
-    }
+    if ( file_exists( $inc_path ) ) require_once( $inc_path );
 
     return;
   }
@@ -100,71 +88,74 @@ function Mito( string $input ) : void
 
 
   /** Попытки найти подключаемый класс до тех пор, пока можно делить namespace */
+
   do {
-
     /** Проверка namespace`а подключаемого класса на соответствие namespace`ам в конфигурации */
-    foreach ( $Mito_conf as $ns => $paths ) {
-
+    foreach ( $__conf as $ns => $ns_pathways ) {
       if ( $namespace === trim( $ns, '\\' ) ) {
 
-        if ( gettype( $paths ) !== 'array' ) $paths = [ $paths ];
 
-        foreach ( $paths as $i => $path ) {
+
+        if ( gettype( $ns_pathways ) !== 'array' ) $ns_pathways = [ $ns_pathways ];
+
+        foreach ( $ns_pathways as $__i => $path ) {
           /** Нормализация пути */
-          $path = MITO_DS . trim( preg_replace( '/\\//', MITO_DS, $path ), MITO_DS ) . MITO_DS;
+          $path = __DS . trim( preg_replace( '/\\//', __DS, $path ), __DS ) . __DS;
           /** Формирование пути к файлу */
-          $include_path = MITO_PRD . $path . $saved_path . $class . MITO_FEXT;
+          $inc_path = __ROOT_DIR . $path . $inner_path . $class_name . '.php';
 
           /** Если файл есть */
-          if ( file_exists( $include_path ) ) {
-            require_once( $include_path );
-            $found = true;
-            break;
+          if ( file_exists( $inc_path ) ) {
+            require_once( $inc_path );
+            return;
           }
         }
 
+
+
       }
-
-      if ( $found ) break;
-
     }
-
-  } while (
-    !$found
-    && preg_match( '/\\\/', $namespace )
-    && ($saved_path = join( null, array_slice( explode( '\\', $namespace ), -1, null, true ) ) . MITO_DS)
-    && ($namespace = join( MITO_DS, array_slice( explode( '\\', $namespace ), 0, -1, true )) )
+  } while ( preg_match( '/\\\/', $namespace )
+    && ($inner_path = join( null, array_slice( explode( '\\', $namespace ), -1, null, true ) ) . __DS)
+    && ($namespace = join( __DS, array_slice( explode( '\\', $namespace ), 0, -1, true )) )
   );
+
 }
 
 
 
-/**
- * Регистрация функции Mito как автолоадер
- */
+/** Регистрация функции Mito как автолоадер */
 spl_autoload_register( 'Mito' );
 
 
 
 
 
+/** Необходимые константы */
+
 /**
+ * Разделитель каталогов
  *
- * ====================
- * Необходимые константы
- * ====================
- *
+ * @var string
  */
+define( '__DS', DIRECTORY_SEPARATOR );
+/**
+ * Разделитель namespace`ов
+ *
+ * @var string
+ */
+define( '__NS', '\\' );
 
-/** Разделитель каталогов */
-define( 'MITO_DS', DIRECTORY_SEPARATOR );
-/** Разделитель namespace`ов */
-define( 'MITO_NS', '\\' );
-/** Расширение подключаемых файлов php */
-define( 'MITO_FEXT', '.php' );
+/**
+ * Корневая директория проекта
+ *
+ * @var string
+ */
+!defined( '__ROOT_DIR' ) && define( '__ROOT_DIR', __DIR__ );
 
-/** Корневая директория проекта */
-!defined( 'MITO_PRD' ) && define( 'MITO_PRD', __DIR__ );
-
-/** Путь к файлу конфигурации */
-!defined( 'MITO_CONF' ) && define( 'MITO_CONF', __DIR__ );
+/**
+ * Путь к файлу конфигурации
+ *
+ * @var string
+ */
+!defined( '__CONF_FILE' ) && define( '__CONF_FILE', __DIR__ . __DS . 'Mito.conf.json' );

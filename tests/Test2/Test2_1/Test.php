@@ -1,6 +1,15 @@
 <?php
 
+/**
+ * Файл теста
+ *
+ * @author Alexandr Shamanin (@slpAkkie)
+ */
+
+
+
 namespace Test2\Test2_1;
+
 
 
 class Test

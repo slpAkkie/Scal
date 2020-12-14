@@ -1,6 +1,9 @@
 <?php
 /**
  * Файл содержит функции для проведения тестов
+ *
+ * @author Alexandr Shamanin (@slpAkkie)
+ * @version 1.1.2
  */
 
 
