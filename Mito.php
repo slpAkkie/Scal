@@ -99,10 +99,43 @@ function Mito( string $class ) : void
         if ( gettype( $ns_pathways ) !== 'array' ) $ns_pathways = [ $ns_pathways ];
 
         foreach ( $ns_pathways as $__i => $path ) {
+          /**
+           * Количество звездочек (Указатель на рекурсивный просмотр дочерних каталогов) в пути
+           *
+           * @var int
+           */
+          $star_count = 0;
+
+
           /** Нормализация пути */
-          $path = __DS . trim( preg_replace( '/\\//', __DS, $path ), __DS ) . __DS;
+          $path = __DS . trim( preg_replace( '/\\//', __DS, preg_replace( '/\*/', '', $path, -1, $star_count ) ), __DS ) . __DS;
+
+          /** Если в пути указана больше одной звездочки, то путь указан неверно */
+          if ( $star_count > 1 ) continue;
+
+
+          /**
+           * Нужно ли искать во всех дочернихпапках
+           *
+           * @var bool
+           */
+          $child_recursievly = (bool)($star_count === 1);
+
+          /**
+           *
+           */
+
+
+
           /** Формирование пути к файлу */
-          $inc_path = __ROOT_DIR . $path . $inner_path . $class_name . '.php';
+
+          $file_path = __ROOT_DIR . $path . $inner_path;
+          $file_name = $class_name . '.php';
+
+          if ( $child_recursievly && $inner_path === '' ) $inc_path = find_file( $file_path, $file_name );
+          else $inc_path = $file_path . $file_name;
+
+          if ( $inc_path === null ) return;
 
           /** Если файл есть */
           if ( file_exists( $inc_path ) ) {
@@ -126,6 +159,34 @@ function Mito( string $class ) : void
 
 /** Регистрация функции Mito как автолоадер */
 spl_autoload_register( 'Mito' );
+
+
+
+/**
+ * Найти файл в каталоге, включая дочернии (Рекурсивно)
+ *
+ * @param string $dir Директория для поиска
+ * @param string $file_name Имя искомого файла (с расширением)
+ *
+ * @return string|null Путь к искомому файлу относителньо $dir или null если файл не найден
+ */
+function find_file( string $dir, string $file_name ) : ?string
+{
+
+  $dir_entry = array_splice( scandir( $dir ), 2 );
+
+  foreach ( $dir_entry as $__i => $item ) {
+
+    if ( file_exists( $item ) ) {
+      if ( $item === $file_name )
+        return $dir . $file_name;
+    } else return find_file( $dir . $item . __DS, $file_name );
+
+  }
+
+  return null;
+
+}
 
 
 
