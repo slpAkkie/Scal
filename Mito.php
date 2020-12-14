@@ -44,8 +44,6 @@ function Mito( string $input ) : void
 
 
 
-  /** Разделение входной строки на namespace и класс */
-
   /** Разбиение входной строки по _NS (Разделитель namespace`ов) */
   $input = explode( _NS, $input );
 
@@ -57,17 +55,31 @@ function Mito( string $input ) : void
   $namespace = join( _DS, array_slice( $input, 0, -1, true ) );
 
   /**
+   * Часть namespace`а не входящая в проверку и сохраняющаяся при подстановке
+   *
+   * @var string
+   */
+  $saved_path = '';
+
+  /**
    * Имя подключаемого класса
    *
    * @var string
    */
   $class = join( null, array_slice( $input, -1, 1, true ) );
 
+  /**
+   * Найден ли подключаемый класс
+   *
+   * @var bool
+   */
+  $found = false;
+
 
 
   /** Если namespace пустой, тогда вести поиск в корне проекта */
 
-  if ( $namespace === '' ) {
+  if ( !$found && $namespace === '' ) {
     /** Нормализация пути */
     $path = _DS;
     /** Формирование пути к файлу */
@@ -76,36 +88,52 @@ function Mito( string $input ) : void
     /** Если файл есть */
     if ( file_exists( $include_path ) ) {
       require_once( $include_path );
-      return;
+      $found = true;
     }
+
+    return;
   }
 
 
 
 
-  /** Проверка namespace`а подключаемого класса на соответствие namespace`ам в конфигурации */
-  foreach ( $Mito_conf as $ns => $paths ) {
 
-    if ( $namespace === trim( $ns, '\\' ) ) {
+  /** Попытки найти подключаемый класс до тех пор, пока можно делить namespace */
+  do {
 
-      if ( gettype( $paths ) !== 'array' ) $paths = [ $paths ];
+    /** Проверка namespace`а подключаемого класса на соответствие namespace`ам в конфигурации */
+    foreach ( $Mito_conf as $ns => $paths ) {
 
-      foreach ( $paths as $i => $path ) {
-        /** Нормализация пути */
-        $path = _DS . trim( preg_replace( '/\\//', _DS, $path ), '\\/' ) . _DS;
-        /** Формирование пути к файлу */
-        $include_path = __DIR__ . $path . $class . _FEXT;
+      if ( $namespace === trim( $ns, '\\' ) ) {
 
-        /** Если файл есть */
-        if ( file_exists( $include_path ) ) {
-          require_once( $include_path );
-          break;
+        if ( gettype( $paths ) !== 'array' ) $paths = [ $paths ];
+
+        foreach ( $paths as $i => $path ) {
+          /** Нормализация пути */
+          $path = _DS . trim( preg_replace( '/\\//', _DS, $path ), _DS ) . _DS;
+          /** Формирование пути к файлу */
+          $include_path = __DIR__ . $path . $saved_path . $class . _FEXT;
+
+          /** Если файл есть */
+          if ( file_exists( $include_path ) ) {
+            require_once( $include_path );
+            $found = true;
+            break;
+          }
         }
+
       }
 
+      if ( $found ) break;
+
     }
 
-  }
+  } while (
+    !$found
+    && preg_match( '/\\\/', $namespace )
+    && ($saved_path = join( null, array_slice( explode( '\\', $namespace ), -1, null, true ) ) . _DS)
+    && ($namespace = join( _DS, array_slice( explode( '\\', $namespace ), 0, -1, true )) )
+  );
 }
 
 
