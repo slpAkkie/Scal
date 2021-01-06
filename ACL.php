@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Mito - Автолоадер классов
+ * ACL - Автолоадер классов
  *
  * Для использование подключите файл до того, как будут использованы namespace
  *
- * Mito должна быть запущена в корне проекта, откуда в последствии будут искаться классы
+ * ACL должна быть запущена в корне проекта, откуда в последствии будут искаться классы
  * Вы также можете задать корневой каталог проекта в ручную установив константу MITO_RD до подключения
  *
  *
@@ -25,12 +25,12 @@
  *
  * @return void
  */
-function Mito( string $class ) : void
+function ACL( string $class ) : void
 {
 
   /**
    * Загрузка конфигурации
-   * Файл Mito.conf.json конфигурации должен лежать рядом с Mito.php
+   * Файл ACL.conf.json конфигурации должен лежать рядом с ACL.php
    *
    * @var bool|array|null Конфигурация
    */
@@ -147,8 +147,8 @@ function Mito( string $class ) : void
 
 
 
-/** Регистрация функции Mito как автолоадер */
-spl_autoload_register( 'Mito' );
+/** Регистрация функции ACL как автолоадер */
+spl_autoload_register( 'ACL' );
 
 
 
@@ -202,4 +202,4 @@ define( '__NS', '\\' );
 /**
  * @var string Путь к файлу конфигурации
  */
-!defined( '__CONF_FILE' ) && define( '__CONF_FILE', __DIR__ . __DS . 'Mito.conf.json' );
+!defined( '__CONF_FILE' ) && define( '__CONF_FILE', __DIR__ . __DS . 'ACL.conf.json' );
