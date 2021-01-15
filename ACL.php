@@ -49,7 +49,7 @@ function ACL( string $class ) : void
   /**
    * @var string namespace подключаемого класса
    */
-  $namespace = join( __DS, array_slice( $class, 0, -1, true ) );
+  $namespace = join( __NS, array_slice( $class, 0, -1, true ) );
 
   /**
    * @var string Дочернии каталоги для каталога namespace`а
@@ -100,7 +100,7 @@ function ACL( string $class ) : void
 
 
           /** Нормализация пути */
-          $path = __DS . trim( preg_replace( '/\\//', __DS, preg_replace( '/\*/', '', $path, -1, $star_count ) ), __DS ) . __DS;
+          $path = __DS . trim( preg_replace( '/\\\\/', __DS, preg_replace( '/\*/', '', $path, -1, $star_count ) ), __DS ) . __DS;
 
           /** Если в пути указана больше одной звездочки, то путь указан неверно */
           if ( $star_count > 1 ) continue;
