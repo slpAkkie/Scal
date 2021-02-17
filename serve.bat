@@ -1,8 +1,17 @@
+::
+::==================================================
+:: Lunch the local php development server
+::==================================================
+::
+:: @author Alexandr Shamanin (@slpAkkie)
+::
+
+
+
 @echo off
-chcp 65001 > nul
+title PHP Development Server
 
-start http://localhost:8000
-php -S localhost:8000
+if "%~1" NEQ "" (set port=%1) else (set port=8000)
 
-echo Работа сервера была завершена
-pause
+start http://localhost:%port%
+php -S localhost:%port%

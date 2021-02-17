@@ -1,0 +1,8 @@
+{
+  "nsp": {},
+  "options": {
+    "ClassPrefix": false,
+    "InterfacePrefix": false,
+    "ClassPrefixes": []
+  }
+}

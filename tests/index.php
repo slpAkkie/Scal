@@ -1,43 +1,35 @@
-<h1>Страница для тестирования ACL</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-<?php
+  <!-- Meta tags
+  ==================== -->
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-/**
- * Входная точка для запуска тестирования
- *
- * @author Alexandr Shamanin (@slpAkkie)
- * @version 1.0.1
- */
+  <!-- Title
+  ==================== -->
+  <title>Scal testing</title>
 
+</head>
+<body>
 
+  <h1>Page for testing Scal</h1>
+  <hr>
 
-/** Подключение функций отладки */
-require_once( '../debug.php' );
+  <section>
+    <?php
 
-/** Опрежедение корневой папки проекта для ACL */
-define( '__ROOT_DIR', __DIR__ );
-/** Подключение ACL */
-require_once( '../ACL.php' );
+      // Enable display of all errors
+      error_reporting(E_ALL);
 
-/** Подключение файла с тестами */
-require_once( './tests.php' );
+      // Scal inclusion
+      // TODO: Specify the configuration file before Scal including
+      require_once '../Scal.php';
 
+    ?>
+  </section>
 
-
-
-
-/** Запук тестов */
-
-/** 1 */
-run_test( 'Test', 'Подключение класса, не имеющего namespace и лежащего в корне проекта' );
-/** 2 */
-run_test( 'Test1\Test', 'Подключение класса, namespace которого записан в конфигурации (Одно слово) и файл лежит в корне указаного католога' );
-/** 3 */
-run_test( 'Test2\Test', 'Подключение класса, namespace которого записан в конфигурации (Одно слово) и файл лежит в корне указаного католога, но также в конфигурации присутствует запись, частично совпадающая с этим namespace`ом' );
-/** 4 */
-run_test( 'Test2\Test2_1\Test', 'Подключение класса, namespace которого записан в конфигурации (Два слово) и файл лежит в корне указаного католога' );
-/** 5 */
-run_test( 'Test3\Test2', 'Подключение класса, namespace которого записан в конфигурации (Одно слово) как массив каталогов, файлы лежат в корне этих каталогов' );
-/** 6 */
-run_test( 'Test4\Test4_1\Test', 'Подключение класса, namespace которого частично записан в конфигурации (Одно слово) файлы лежат в дочернем каталоге указанного в конфигурации каталога' );
-run_test( 'Test5\Test', 'Подключение класса, namespace которого записан в конфигурации, но указано что файлы нужно искать рекурсивно' );
+</body>
+</html>
