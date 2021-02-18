@@ -3,14 +3,14 @@
 /*
 |
 |--------------------------------------------------
-| Fifth test class
+| AppException test class
 |--------------------------------------------------
 |
 | Test decription coming soon
 |
 */
 
-namespace Tests;
+namespace Exceptions;
 
-class FifthClass
+class AppException
 { }

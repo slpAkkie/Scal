@@ -1,8 +1,15 @@
 {
-  "nsp": {},
+  "nsp": {
+    "Core": "Core",
+    "Illuminate": "Core\\Illuminate",
+    "Support": "Support\\*",
+    "Exceptions": [
+      "Core\\Exceptions",
+      "App\\Exceptions"
+    ],
+    "App\\Controllers": "App\\Http\\MVC\\Controllers"
+  },
   "options": {
-    "ClassPrefix": false,
-    "InterfacePrefix": false,
-    "ClassPrefixes": []
+    "suffixes": []
   }
 }

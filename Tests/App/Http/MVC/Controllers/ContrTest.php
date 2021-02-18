@@ -3,14 +3,14 @@
 /*
 |
 |--------------------------------------------------
-| Third test class
+| ContrTest test class
 |--------------------------------------------------
 |
 | Test decription coming soon
 |
 */
 
-namespace Tests;
+namespace App\Controllers;
 
-class ThirdClass
+class ContrTest
 { }

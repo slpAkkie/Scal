@@ -3,7 +3,7 @@
 /*
 |
 |--------------------------------------------------
-| Fourth test class
+| Direct test class
 |--------------------------------------------------
 |
 | Test decription coming soon
@@ -12,5 +12,5 @@
 
 namespace Tests;
 
-class FourthClass
+class DirectTest
 { }

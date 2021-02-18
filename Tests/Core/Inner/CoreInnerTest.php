@@ -3,14 +3,14 @@
 /*
 |
 |--------------------------------------------------
-| Sixth test class
+| Core inner test class
 |--------------------------------------------------
 |
 | Test decription coming soon
 |
 */
 
-namespace Tests;
+namespace Core\Inner;
 
-class SixthClass
+class CoreInnerTest
 { }

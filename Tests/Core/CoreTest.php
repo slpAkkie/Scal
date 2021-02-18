@@ -3,14 +3,14 @@
 /*
 |
 |--------------------------------------------------
-| Second test class
+| Core test class
 |--------------------------------------------------
 |
 | Test decription coming soon
 |
 */
 
-namespace Tests;
+namespace Core;
 
-class SecondClass
+class CoreTest
 { }

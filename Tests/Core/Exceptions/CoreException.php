@@ -3,14 +3,14 @@
 /*
 |
 |--------------------------------------------------
-| First test class
+| CoreException test class
 |--------------------------------------------------
 |
 | Test decription coming soon
 |
 */
 
-namespace Tests;
+namespace Exceptions;
 
-class FirstClass
+class CoreException
 { }
