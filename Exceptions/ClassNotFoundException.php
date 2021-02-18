@@ -11,7 +11,7 @@
 |
 */
 
-namespace Scal;
+namespace Scal\Exceptions;
 
 class ClassNotFoundException extends BaseException
 { }

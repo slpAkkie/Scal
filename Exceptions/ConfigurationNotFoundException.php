@@ -10,7 +10,7 @@
 |
 */
 
-namespace Scal;
+namespace Scal\Exceptions;
 
 class ConfigurationNotFoundException extends BaseException
 { }

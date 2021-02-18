@@ -10,7 +10,9 @@
 |
 */
 
-namespace Scal;
+namespace Scal\Exceptions;
 
-abstract class BaseException
+use Exception;
+
+abstract class BaseException extends Exception
 { }

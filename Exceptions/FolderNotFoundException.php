@@ -12,7 +12,7 @@
 |
 */
 
-namespace Scal;
+namespace Scal\Exceptions;
 
 class FolderNotFoundException extends BaseException
 { }
