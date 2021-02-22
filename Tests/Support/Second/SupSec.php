@@ -16,6 +16,6 @@ class SupSec
 {
   public function __construct()
   {
-    echo self::class . ' Успешно подключен<br />';
+    successfulyIncluded(self::class);
   }
 }
