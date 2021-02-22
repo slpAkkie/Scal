@@ -16,8 +16,10 @@
 
 namespace Scal;
 
+use Scal\Exceptions\ClassNotFoundException;
 use Scal\Exceptions\ConfigurationCannotBeReadException;
 use Scal\Exceptions\ConfigurationNotFoundException;
+use Scal\Exceptions\WrongConfigurationException;
 
 class Loader
 {
@@ -33,7 +35,7 @@ class Loader
    *
    * @var string
    */
-  private static $configuration_name = 'Scal.json';
+  private static $cfg_name = 'Scal.json';
 
   /**
    * Custom configuration file name specified manually
@@ -42,7 +44,7 @@ class Loader
    *
    * @var null|string
    */
-  public static $configuration_path = null;
+  public static $cfg_path = null;
 
   /**
    * Scal configuration
@@ -67,32 +69,37 @@ class Loader
   public static function init(): void
   {
     // Define data about configuration file by default
-    $configuration_path = SCAL_REAL_PATH;
-    $configuration_name = self::$configuration_name;
-    $configuration_full_path = $configuration_path . $configuration_name;
+    $cfg_path = SCAL_REAL_PATH;
+    $cfg_name = self::$cfg_name;
+    $cfg_full_path = $cfg_path . $cfg_name;
 
     // Check if configuration path was set manually
-    if (self::$configuration_path !== null) {
+    if (self::$cfg_path !== null) {
       // Normilize the path
-      self::$configuration_path = self::path_normilize(self::$configuration_path);
+      self::$cfg_path = self::fixDirSeparator(self::$cfg_path);
 
       // Extract configuration name from its path
-      $configuration_path = dirname(self::$configuration_path);
-      $configuration_name = basename(self::$configuration_path);
+      $cfg_path = dirname(self::$cfg_path);
+      $cfg_name = basename(self::$cfg_path);
 
       // Build path
-      if ($configuration_path === '.') $configuration_full_path = $configuration_name;
-      else $configuration_full_path = SCAL_EXECUTED_IN . $configuration_path . DIRECTORY_SEPARATOR . $configuration_name;
+      if ($cfg_path === '.') $cfg_full_path = $cfg_name;
+      else $cfg_full_path = SCAL_EXECUTED_IN . $cfg_path . DIRECTORY_SEPARATOR . $cfg_name;
     }
 
 
 
     // Check if configuration file doesn't exists
-    if (!file_exists($configuration_full_path)) throw new ConfigurationNotFoundException();
+    if (!file_exists($cfg_full_path)) throw new ConfigurationNotFoundException();
 
     // Else try to read it
-    self::$configuration = json_decode(file_get_contents($configuration_full_path), true);
-    if (gettype(self::$configuration) !== 'array') throw new ConfigurationCannotBeReadException();
+    $configuration = json_decode(file_get_contents($cfg_full_path), true);
+    if (gettype($configuration) !== 'array') throw new ConfigurationCannotBeReadException();
+
+
+    // Normilize namespaces and paths
+    $configuration['nsp'] = self::normalizeConf($configuration['nsp']);
+    self::$configuration = $configuration;
 
 
 
@@ -106,9 +113,132 @@ class Loader
    * @param string $path
    * @return string
    */
-  public static function path_normilize(string $path): string
+  public static function fixDirSeparator(string $path): string
   {
     return preg_replace('/[\/\\\]/', DIRECTORY_SEPARATOR, trim($path, '/\\'));
+  }
+
+  /**
+   * Normilize paths and make it correct
+   *
+   * @param array $path
+   * @return array
+   */
+  public static function fixDirSeparatorInArray(array $paths): array
+  {
+    for ($i = 0; $i < count($paths); $i++)
+      $paths[$i] = self::fixDirSeparator($paths[$i]);
+
+    return $paths;
+  }
+
+  /**
+   * Glue parts of path into ine
+   *
+   * @param array $parts
+   * @return string
+   */
+  public static function gluePaths(string ...$parts): string
+  {
+    return join(DIRECTORY_SEPARATOR, self::fixDirSeparatorInArray($parts));
+  }
+
+  /**
+   * Normalize namespace with ending \
+   *
+   * @param string $namespace
+   * @return string
+   */
+  public static function normalizeNamespace($namespace): string
+  {
+    return trim($namespace, '\\') . '\\';
+  }
+
+  /**
+   * Normilize namespaces and paths
+   *
+   * @param array $cfg Configuration to normilize
+   * @return array
+   */
+  public static function normalizeConf($cfg): array
+  {
+    $out_cfg = array();
+
+    foreach ($cfg as $namespace => $path) {
+      $namespace = self::normalizeNamespace($namespace);
+      switch (gettype($path)) {
+        case 'array': $path = self::fixDirSeparatorInArray($path); break;
+        case 'string': $path = self::fixDirSeparator($path); break;
+        default: throw new WrongConfigurationException();
+      }
+
+      $out_cfg[$namespace] = $path;
+    }
+
+    return $out_cfg;
+  }
+
+  /**
+   * Get path to file of class
+   *
+   * @param string $namespace Namespace to make path
+   * @return string
+   */
+  public static function pathFromNamespace(string $namespace): string
+  {
+    return self::gluePaths(SCAL_EXECUTED_IN, $namespace);
+  }
+
+  /**
+   * Get path to file of class
+   *
+   * @param string $namespace Namespace to make path
+   * @return string
+   */
+  public static function pathFromCfg(string $namespace): string
+  {
+    return self::gluePaths(SCAL_EXECUTED_IN, self::$configuration['nsp'][$namespace]);
+  }
+
+  /**
+   * Extract class namespace and class name
+   *
+   * @param string $class
+   * @return array
+   */
+  public static function extractClassPieces(string $class): array
+  {
+    $class_pieces = explode('\\', $class);
+
+    if (count($class_pieces) === 1) {
+      $class_namespace = '';
+      $class_name = $class_pieces[0];
+    } else {
+      $class_namespace = self::normalizeNamespace(join('\\', array_slice($class_pieces, 0, count($class_pieces) - 1)));
+      $class_name = array_slice($class_pieces, -1)[0];
+    }
+
+    return [$class_namespace, $class_name];
+  }
+
+  /**
+   * Get class file path by namespace and class name
+   *
+   * @param string $namespace
+   * @param string $class
+   * @return string
+   */
+  public static function getClassFilePath(string $namespace, string $class): string
+  {
+    // Default
+    $path = self::pathFromNamespace($namespace);
+
+    // Try to find in configuration
+    foreach (self::$configuration['nsp'] as $key => $value)
+      if (substr($namespace, 0, strlen($key)) === $key)
+        $path = self::gluePaths($value, substr($namespace, strlen($key)));
+
+    return self::gluePaths($path, $class . '.php');
   }
 
   /**
@@ -119,6 +249,18 @@ class Loader
    */
   public static function load(string $class): void
   {
-    // Code here
+    // Check if not initialized
+    if (!self::$initialized) self::init();
+
+    // Explode input $class
+    [$namespace, $class_name] = self::extractClassPieces($class);
+
+    $file_path = self::getClassFilePath($namespace, $class_name);
+
+    if (!file_exists($file_path)) throw new ClassNotFoundException();
+
+    require_once $file_path;
+
+    if (!class_exists($class, false)) throw new ClassNotFoundException();
   }
 }
