@@ -33,3 +33,11 @@ function svt( $var ): void
 {
   var_dump($var); exit;
 }
+
+/**
+ * Display class name with message when it was successfuly included
+ */
+function successfulyIncluded($class_name)
+{
+  echo '<div><span style="display: inline-block; width: 32%">' . $class_name . '</span><span>Успешно подключен</span></div>';
+}
