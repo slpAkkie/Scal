@@ -19,6 +19,7 @@ namespace Scal;
 use Scal\Exceptions\ClassNotFoundException;
 use Scal\Exceptions\ConfigurationCannotBeReadException;
 use Scal\Exceptions\ConfigurationNotFoundException;
+use Scal\Exceptions\FileNotFoundException;
 use Scal\Exceptions\WrongConfigurationException;
 
 class Loader
@@ -168,7 +169,13 @@ class Loader
       $namespace = self::normalizeNamespace($namespace);
       switch (gettype($path)) {
         case 'array': $path = self::fixDirSeparatorInArray($path); break;
-        case 'string': $path = self::fixDirSeparator($path); break;
+        case 'string':
+          if (substr($path, -1) === '*') {
+            $path = self::getSubdirectories($path) ?? $path;
+          }
+          else
+            $path = self::fixDirSeparator($path);
+          break;
         default: throw new WrongConfigurationException();
       }
 
@@ -176,6 +183,32 @@ class Loader
     }
 
     return $out_cfg;
+  }
+
+  /**
+   * Get all subdirectories of given recursively
+   *
+   * @param string $root
+   * @return mixed
+   */
+  public static function getSubdirectories($root)
+  {
+    $subdirectories = glob($root, GLOB_ONLYDIR);
+
+    if (count($subdirectories) === 0) return null;
+
+    foreach ($subdirectories as $subd) {
+      $subdsub = self::getSubdirectories($subd . DIRECTORY_SEPARATOR . '*');
+      if (count($subdsub) > 1) array_push(
+        $subdirectories,
+        ...array_splice($subdsub, 1)
+      );
+    }
+
+    return [
+      substr($root, 0, strlen($root) - 1),
+      ...$subdirectories
+    ];
   }
 
   /**
@@ -235,10 +268,39 @@ class Loader
 
     // Try to find in configuration
     foreach (self::$configuration['nsp'] as $key => $value)
-      if (substr($namespace, 0, strlen($key)) === $key)
-        $path = self::gluePaths($value, substr($namespace, strlen($key)));
+      if (substr($namespace, 0, strlen($key)) === $key) {
+        $path = $value;
+        $remain_path = substr($namespace, strlen($key));
+      }
 
-    return self::gluePaths($path, $class . '.php');
+    $path = self::checkPath($path, $remain_path, $class . '.php');
+
+    return $path;
+  }
+
+  /**
+   * Check if file exists and return it
+   *
+   * @param array|string $path
+   * @param string $remain_path
+   * @param string $file_name
+   * @return string
+   */
+  public static function checkPath($path, $remain_path, $file_name): string
+  {
+    switch (gettype($path)) {
+      case 'string':
+        return $remain_path
+          ? self::gluePaths($path, $remain_path, $file_name)
+          : self::gluePaths($path, $file_name); break;
+      case 'array':
+        foreach ($path as $value) {
+          $file_path = self::checkPath($value, $remain_path, $file_name);
+          if (file_exists($file_path)) return $file_path;
+        }
+        throw new FileNotFoundException();
+        break;
+    }
   }
 
   /**
