@@ -43,7 +43,6 @@ if "%~1" NEQ "" goto checkParameter
 
 
 :: Open browser if need and start the server
-echo По окончанию openBrowser = %openBrowser%
-echo По окончанию port = %port%
+echo Сервер запущен на порту %port%
 if %openBrowser% EQU true start http://localhost:%port%
 php -S localhost:%port%
