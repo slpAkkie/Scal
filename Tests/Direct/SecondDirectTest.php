@@ -10,5 +10,12 @@
 |
 */
 
+namespace Direct;
+
 class SecondDirectTest
-{ }
+{
+  public function __construct()
+  {
+    echo self::class . ' Успешно подключен<br />';
+  }
+}

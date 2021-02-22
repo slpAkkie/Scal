@@ -3,16 +3,16 @@
 /*
 |
 |--------------------------------------------------
-| SubD test class
+| ContrInner test class
 |--------------------------------------------------
 |
 | Test decription coming soon
 |
 */
 
-namespace Support;
+namespace App\Controllers\Inner;
 
-class SupD
+class ContrInner
 {
   public function __construct()
   {

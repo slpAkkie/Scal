@@ -13,4 +13,9 @@
 namespace Core\Inner;
 
 class CoreInnerTest
-{ }
+{
+  public function __construct()
+  {
+    echo self::class . ' Успешно подключен<br />';
+  }
+}

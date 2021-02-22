@@ -13,4 +13,9 @@
 namespace Illuminate;
 
 class IllumTest
-{ }
+{
+  public function __construct()
+  {
+    echo self::class . ' Успешно подключен<br />';
+  }
+}

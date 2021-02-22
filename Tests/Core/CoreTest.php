@@ -13,4 +13,9 @@
 namespace Core;
 
 class CoreTest
-{ }
+{
+  public function __construct()
+  {
+    echo self::class . ' Успешно подключен<br />';
+  }
+}

@@ -13,4 +13,9 @@
 namespace App\Controllers;
 
 class ContrTest
-{ }
+{
+  public function __construct()
+  {
+    echo self::class . ' Успешно подключен<br />';
+  }
+}
