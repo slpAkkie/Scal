@@ -3,38 +3,54 @@
 /*
 |
 |--------------------------------------------------
-| Class autoloader - Scal
+| Simple class autoloader - Scal
 |--------------------------------------------------
 |
-| Simple class autoloader from me for you.
-| This is the entry point of Scal. Here is no logic
-| it's in the ScalClass.php file, but if you want
-| to customize the paths of your namespaces you
-| should go to the configuration file next to.
+| This is the entry point of Scal
+| The including parts and the constant declaration
+| To costumize see Scal.json or create and specify it manually
+| If you want to develop it, see the Loader.php
 |
 */
 
-// Determine the directory where the Scal was executed
+// Constants
 define('SCAL_EXECUTED_IN', realpath('') . DIRECTORY_SEPARATOR);
 
-// Define Scal paths
 define('SCAL_REAL_PATH', __DIR__ . DIRECTORY_SEPARATOR);
-define('SCAL_SUPPORT_PATH', SCAL_REAL_PATH . 'Support/');
-define('SCAL_EXCEPTIONS_PATH', SCAL_REAL_PATH . 'Exceptions/');
+define('SCAL_SUPPORT_PATH', SCAL_REAL_PATH . 'Support' . DIRECTORY_SEPARATOR);
+define('SCAL_EXCEPTIONS_PATH', SCAL_REAL_PATH . 'Exceptions' . DIRECTORY_SEPARATOR);
+define('SCAL_KERNEL_PATH', SCAL_REAL_PATH . 'Kernel' . DIRECTORY_SEPARATOR);
 
-// Use next lines if you developing Scal
-require_once SCAL_SUPPORT_PATH . 'Debug.php';
-define('SCAL_TEST_PATH', SCAL_REAL_PATH . 'Tests/');
+!defined('SCAL_EXCEPTION_MODE') && define('SCAL_EXCEPTION_MODE', false);
+!defined('SCAL_DEV_MODE') && define('SCAL_DEV_MODE', false);
 
 
 
-// Including Scal files
-require_once SCAL_EXCEPTIONS_PATH . 'BaseException.php';
-require_once SCAL_EXCEPTIONS_PATH . 'ClassNotFoundException.php';
-require_once SCAL_EXCEPTIONS_PATH . 'ConfigurationNotFoundException.php';
-require_once SCAL_EXCEPTIONS_PATH . 'FileNotFoundException.php';
-require_once SCAL_EXCEPTIONS_PATH . 'FolderNotFoundException.php';
+// Dev mode
+if (SCAL_DEV_MODE) {
 
-require_once SCAL_REAL_PATH . 'Loader.php';
+  require_once SCAL_SUPPORT_PATH . 'Debug.php';
+  require_once SCAL_SUPPORT_PATH . 'Test.php';
+}
 
+// Exception mode
+if (SCAL_EXCEPTION_MODE) {
+  require_once SCAL_EXCEPTIONS_PATH . 'BaseException.php';
+  require_once SCAL_EXCEPTIONS_PATH . 'ClassNotFoundException.php';
+  require_once SCAL_EXCEPTIONS_PATH . 'ConfigurationNotFoundException.php';
+  require_once SCAL_EXCEPTIONS_PATH . 'FileNotFoundException.php';
+  require_once SCAL_EXCEPTIONS_PATH . 'FolderNotFoundException.php';
+}
+
+
+// Support
+require_once SCAL_SUPPORT_PATH . 'Path.php';
+require_once SCAL_SUPPORT_PATH . 'Str.php';
+
+// Kernel
+require_once SCAL_KERNEL_PATH . 'Loader.php';
+
+
+
+// Register Loader
 spl_autoload_register('Scal\Loader::load');
