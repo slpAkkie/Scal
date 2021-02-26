@@ -25,7 +25,7 @@ Example of Scal.json
 }
 ```
 
-## Конфигурация (Scal.json)
+## Configuration (Scal.json)
 
 It's unnecessary to end namespaces with `\`
 So you can use single path or an array of paths according to it.
