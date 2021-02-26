@@ -1,43 +1,52 @@
-<h1>Страница для тестирования ACL</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-<?php
+  <!-- Title
+  ==================== -->
+  <title>Scal testing</title>
 
-/**
- * Входная точка для запуска тестирования
- *
- * @author Alexandr Shamanin (@slpAkkie)
- * @version 1.0.1
- */
+</head>
+<body>
 
+  <!-- Heading
+  ==================== -->
+  <h1>Scal testing</h1>
+  <hr>
 
+  <!-- Logs
+  ==================== -->
+  <?php
 
-/** Подключение функций отладки */
-require_once( '../debug.php' );
+      // Enable display of all errors
+      error_reporting(E_ALL);
 
-/** Опрежедение корневой папки проекта для ACL */
-define( '__ROOT_DIR', __DIR__ );
-/** Подключение ACL */
-require_once( '../ACL.php' );
+      // Include Scal
+      define('SCAL_DEV_MODE', true);
+      define('SCAL_EXCEPTION_MODE', true);
+      require_once '../Scal.php';
 
-/** Подключение файла с тестами */
-require_once( './tests.php' );
+      // Exception mode
+      if (!SCAL_EXCEPTION_MODE) { echo 'Режим оповещения об ошибках отключен (SCAL_EXCEPTION_MODE)'; }
 
+      // Tests
+      if (SCAL_DEV_MODE) {
+        Scal\Support\Test::tryLoad('NoConfTest');
+        Scal\Support\Test::tryLoad('NoConf\NoConfTest');
+        Scal\Support\Test::tryLoad('Direct\DirectTest');
+        Scal\Support\Test::tryLoad('Complex\Direct\ComplexTest');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest0');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest1');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest2');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest2_1');
+        Scal\Support\Test::tryLoad('Many\Many1Test');
+        Scal\Support\Test::tryLoad('Many\Many2Test');
+        Scal\Support\Test::tryLoad('Many\Many2Depth1Test');
+        Scal\Support\Test::tryLoad('Many\Many2Depth1_2Test');
+        Scal\Support\Test::tryLoad('Many\Many2Depth2Test');
+      } else { echo 'Чтобы провести тесты, задайте константу SCAL_DEV_MODE в значение true'; }
 
+  ?>
 
-
-
-/** Запук тестов */
-
-/** 1 */
-run_test( 'Test', 'Подключение класса, не имеющего namespace и лежащего в корне проекта' );
-/** 2 */
-run_test( 'Test1\Test', 'Подключение класса, namespace которого записан в конфигурации (Одно слово) и файл лежит в корне указаного католога' );
-/** 3 */
-run_test( 'Test2\Test', 'Подключение класса, namespace которого записан в конфигурации (Одно слово) и файл лежит в корне указаного католога, но также в конфигурации присутствует запись, частично совпадающая с этим namespace`ом' );
-/** 4 */
-run_test( 'Test2\Test2_1\Test', 'Подключение класса, namespace которого записан в конфигурации (Два слово) и файл лежит в корне указаного католога' );
-/** 5 */
-run_test( 'Test3\Test2', 'Подключение класса, namespace которого записан в конфигурации (Одно слово) как массив каталогов, файлы лежат в корне этих каталогов' );
-/** 6 */
-run_test( 'Test4\Test4_1\Test', 'Подключение класса, namespace которого частично записан в конфигурации (Одно слово) файлы лежат в дочернем каталоге указанного в конфигурации каталога' );
-run_test( 'Test5\Test', 'Подключение класса, namespace которого записан в конфигурации, но указано что файлы нужно искать рекурсивно' );
+</body>
+</html>

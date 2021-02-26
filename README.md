@@ -1,78 +1,40 @@
-# ACL
+# Scal
 
-Мой самописный автолоадер классов PHP
+Simple class autoloader from me for you. Take & Use.
 
-## Установка
+## Install
 
-Для установки ACL в свой проект
+Include the `Scal.php` file at the entry point of your application. Here will be the root directory for searching class
 
-- Скачайте файл ***ACL.php***
-- Положите файл в корень вашего проекта (Оттуда будет вестись поиск классов), либо в любую другую директорию (Для этого до подключении объявите константу `__ROOT_DIR`, с путем к *корневому каталогу проекта*)
+## Use
 
-## Использование
+After you have included Scal.php you can customize namespace paths. To do this create a Scal.json file in the root directory (Remember that the root directory its where Scal is running).
+Example of Scal.json
 
-- Подключите ACL в главный файл вашего приложения (При необходимости объявите `__ROOT_DIR`)
-- Если вам необходимо, настройте конфигурацию, для этого создайте файл ***ACL.conf.json***, лежащий в том же каталоге, где и ***ACL.php*** (Или в любом другом каталоге, но объявите константу `__CONF_FILE` с путем к файлу конфигурации)
-- *Пишите код*
-
-## Конфигурация (ACL.conf.json)
-
-Файл конфигурации - массив ключ-значение, хранящие соответствия между namespace и путем к каталогу, где искать файлы с этим namespace.
-
-Пример:
-
-```JSON
+```json
 {
-    "App\\": "\\",
-    "Core\\": "\\Core\\",
-    "Controllers\\": [
-        "\\Controllers\\",
-        "\\Core\\Controllers\\"
-    ],
-    "Models\\": [
-        "\\Models\\",
-        "\\Core\\Models\\"
-    ],
-    "Services\\": "\\Core\\Services\\*"
+  "np": {
+    "Direct": "Direct",
+    "Complex\\Direct": "ComplexDirect\\Complex",
+    "Recursion": "Recursion\\*",
+    "Many": [
+      "Many\\Many1\\",
+      "Many\\Many2\\*"
+    ]
+  }
 }
 ```
 
-Имена namespace'ов должны обязательно заканчиваться обратным слэшем `\` (Необходимо экранирование `\\`)
+## Конфигурация (Scal.json)
 
-Пути каталогов могут быть написаны как с обратным слэшем `\` (Необходимо экранирование `\\`), так и с обычными `/`, по итогу они будут преобразованы в разделитель каталогов целевой системы
+It's unnecessary to end namespaces with `\`
+So you can use single path or an array of paths according to it.
+You also can specify path as recursive for searching classes in all child directories
 
-### Как можно указывать значения?
-
-#### Прямой путь
-
-Путь к каталогу, где искать файлы namespace'а, не учитывая дочернии каталоги
-
-#### Массив путей
-
-Массив каталогов, в которых распологаются файлы указанного namespace'а
-
-#### Сквозной путь
-
-Путь со звездочкой на конце, указывая что файлы лежат в этом каталоге и всех подкаталогах
-Такой вариант можно использовать совместно с массивом путей
-
-### Как использовать namespace в проекте
-
-**Важно:** Файлы должны быть названы так же как и классы указанные в них
-
-- Использовать `use`
-- Полное имя класса `Core\Controllers\MainController` (Можно с ведущем слэшем)
-  - При этом в конфигурации может быть указан только namespace `Core`, следующие за ним пути будет расценён как имена каталогов внутри каталога namespace'а `Core`
-- Использование только имени класса `\DI`, если его файл лежит в корне проекта (Можно без ведущего слэша)
-
-## Автор
+## Author
 
 Alexandr Shamanin (@slpAkkie)
 
-## Версия
+## Version
 
-**1.3.6**
-
-## Лицензия
-
-**MIT**
+2.1.0
