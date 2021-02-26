@@ -155,7 +155,8 @@ class Loader
 
     foreach (self::$NP as $namespace => $path) {
       self::unify_namespace($namespace);
-      if (($path = Path::parse($path)) !== null) $NP[$namespace] = $path;
+      if (($path = Path::parse($path)) !== null)
+        $NP[$namespace] = $path;
     }
 
     self::$NP = $NP;
