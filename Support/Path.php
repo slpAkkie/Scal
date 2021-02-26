@@ -58,7 +58,15 @@ class Path {
   public static function parse($path)
   {
     switch (gettype($path)) {
-      case 'array': return array_map(function ($p) { return Path::parsePath($p); }, $path);
+      case 'array':
+        $path = array_map(function ($p) { return Path::parsePath($p); }, $path);
+
+        foreach ($path as $i => $el) {
+          if (gettype($el) === 'array') {
+            array_splice($path, $i, 1, $el);
+          }
+        }
+        return $path;
       case 'string': return self::parsePath($path);
       default:
         if (SCAL_EXCEPTION_MODE)
@@ -76,7 +84,11 @@ class Path {
    */
   private static function parsePath(string $path)
   {
-    if (substr($path, -1) === '*') return Path::subdirs($path) ?? substr($path, 0, -2);
+    if (substr($path, -1) === '*')
+      return array_merge(
+        [ substr($path, 0, -2) ],
+        Path::subdirs($path) ?? []
+      );
     else return Path::normalize($path);
   }
 
@@ -86,24 +98,22 @@ class Path {
    * @param string $root
    * @return array|null
    */
-  private static function subdirs($root): ?array
+  public static function subdirs($root): ?array
   {
     $root_subs = glob($root, GLOB_ONLYDIR);
 
     if (count($root_subs) === 0) return null;
 
-    array_map(function ($dir) use ($root_subs) {
-      $dir_subs = self::subdirs(Path::join($dir, '*'));
-      if ($dir_subs && count($dir_subs) > 0) array_push(
+    foreach ($root_subs as $child) {
+      array_push(
         $root_subs,
-        ...array_splice($dir_subs, 1)
+        ...(self::subdirs("{$child}\\*") ?? [])
       );
-    }, $root_subs);
+    }
 
-    return [
-      substr($root, 0, -2),
-      ...$root_subs
-    ];
+
+
+    return $root_subs;
   }
 
   /**
