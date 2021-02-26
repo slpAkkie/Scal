@@ -61,17 +61,18 @@ class Test
   private static function handler(string $buffer): string
   {
     return  !$buffer
-            ? '<p style="margin-top: 0.15em; color: red">Выполнение теста завершилось с ошибкой</p>'
+            ? '<p style="margin-top: 0.15em; color: red; white-space: break-spaces">Выполнение теста завершилось с ошибкой</p>'
             : $buffer;
   }
 
   /**
    * Prints a message about the sucsessful loading of the class
    *
+   * @param string $description
    * @return void
    */
-  public static function testCompleted(): void
+  public static function testCompleted(string $description = null): void
   {
-    echo '<p style="margin-top: 0.15em; color: green">Тест успешно завершен. Подключенный класс: ' . self::$last_class . '</p>';
+    echo '<p style="margin-top: 0.15em; color: green; white-space: break-spaces">Тест успешно завершен. Подключенный класс: ' . ($description ?? self::$last_class) . '</p>';
   }
 }
