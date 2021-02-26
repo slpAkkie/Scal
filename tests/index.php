@@ -11,36 +11,42 @@
 
   <!-- Heading
   ==================== -->
-  <h1>Page for testing Scal</h1>
+  <h1>Scal testing</h1>
   <hr>
 
   <!-- Logs
   ==================== -->
-  <pre><?php
+  <?php
 
       // Enable display of all errors
       error_reporting(E_ALL);
 
-      // Scal inclusion
+      // Include Scal
+      define('SCAL_DEV_MODE', true);
+      define('SCAL_EXCEPTION_MODE', true);
       require_once '../Scal.php';
 
-      Scal\Loader::$cfg_path = 'ScalTest.json';
-      Scal\Loader::init();
+      // Exception mode
+      if (!SCAL_EXCEPTION_MODE) { echo 'Режим оповещения об ошибках отключен (SCAL_EXCEPTION_MODE)'; }
 
-      new Direct\SecondDirectTest();          // Пространства имен нет, должен искать относительно пути где подключен Scal
-      new DirectTest();                       // Пространства имен нет, должен искать относительно пути где подключен Scal
-      new Core\CoreTest();                    // Пространство имен Core указано в конфигурации без рекурсии
-      new Core\Inner\CoreInnerTest();         // Пространство имен Core указано в конфигурации без рекурсии, а Inner нет
-      new Illuminate\IllumTest();             // Пространство имен Illuminate указано в конфигурации без рекурсии
-      new App\Controllers\ContrTest();        // Пространство имен App\Controllers указано в конфигурации, как сложный путь
-      new App\Controllers\Inner\ContrInner(); // Пространство имен App\Controllers указано в конфигурации, как сложный путь
-      new Exceptions\CoreException();         // Пространство имен Exceptions указано в конфигурации как массив путей
-      new Exceptions\AppException();          // Пространство имен Exceptions указано в конфигурации как массив путей
-      new Support\SupD();                     // Пространство имен Support указано в конфигурации с рекурсией
-      new Support\SupFir();                   // Пространство имен Support указано в конфигурации с рекурсией
-      new Support\SupSec();                   // Пространство имен Support указано в конфигурации с рекурсией
+      // Tests
+      if (SCAL_DEV_MODE) {
+        Scal\Support\Test::tryLoad('NoConfTest');
+        Scal\Support\Test::tryLoad('NoConf\NoConfTest');
+        Scal\Support\Test::tryLoad('Direct\DirectTest');
+        Scal\Support\Test::tryLoad('Complex\Direct\ComplexTest');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest0');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest1');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest2');
+        Scal\Support\Test::tryLoad('Recursion\RecursionTest2_1');
+        Scal\Support\Test::tryLoad('Many\Many1Test');
+        Scal\Support\Test::tryLoad('Many\Many2Test');
+        Scal\Support\Test::tryLoad('Many\Many2Depth1Test');
+        Scal\Support\Test::tryLoad('Many\Many2Depth1_2Test');
+        Scal\Support\Test::tryLoad('Many\Many2Depth2Test');
+      } else { echo 'Чтобы провести тесты, задайте константу SCAL_DEV_MODE в значение true'; }
 
-  ?></pre>
+  ?>
 
 </body>
 </html>
