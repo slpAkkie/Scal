@@ -16,6 +16,7 @@
 
 namespace Scal;
 
+use Scal\Support\Debug;
 use Scal\Support\Path;
 use Scal\Support\Str;
 
@@ -71,8 +72,7 @@ class Loader
     // The file was not found
     if ($conf_file === null) {
       if (SCAL_EXCEPTION_MODE) throw new Exceptions\ConfigurationNotFoundException();
-    }
-    else self::load_conf($conf_file);
+    } else self::load_conf($conf_file);
 
     self::normalize_NP();
 
@@ -177,11 +177,11 @@ class Loader
    * Get path to file of class
    *
    * @param string $namespace Namespace to make path
-   * @return string
+   * @return string|array
    */
-  public static function get_pathFromConf(string $namespace): string
+  public static function get_pathFromConf(string $namespace)
   {
-    return Path::join(SCAL_EXECUTED_IN, self::$NP[$namespace]);
+    return gettype(self::$NP[$namespace]) === 'string' ? Path::join(SCAL_EXECUTED_IN, self::$NP[$namespace]) : self::$NP[$namespace];
   }
 
   /**
@@ -222,7 +222,7 @@ class Loader
     // Try to find in configuration
     foreach (self::$NP as $np => $p)
       if (Str::startsWith($namespace, $np)) {
-        $path = $p;
+        $path = self::get_pathFromConf($np);
         $remain_path = Str::slice($namespace, $np);
       }
 

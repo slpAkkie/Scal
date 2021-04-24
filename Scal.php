@@ -14,7 +14,10 @@
 */
 
 // Constants
-define('SCAL_EXECUTED_IN', realpath('') . DIRECTORY_SEPARATOR);
+if (defined('SCAL_PROJECT_ROOT'))
+  define('SCAL_EXECUTED_IN', SCAL_PROJECT_ROOT);
+else
+  define('SCAL_EXECUTED_IN', realpath('') . DIRECTORY_SEPARATOR);
 
 define('SCAL_REAL_PATH', __DIR__ . DIRECTORY_SEPARATOR);
 define('SCAL_SUPPORT_PATH', SCAL_REAL_PATH . 'Support' . DIRECTORY_SEPARATOR);
