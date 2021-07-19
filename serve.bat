@@ -13,6 +13,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 chcp 65001 > nul
+cls
 
 title PHP Development Server
 
