@@ -1,21 +1,11 @@
 <?php
 
-/*
-|
-|--------------------------------------------------
-| Many1Test
-|--------------------------------------------------
-|
-| One of array path
-|
-*/
-
 namespace Many;
 
 class Many1Test
 {
-  public function __construct()
-  {
-    SCAL_DEV_MODE && \Scal\Support\Test::testCompleted('Для namespace задан массив путей, один из которых с рекурсивным поиском');
-  }
+    public static function getSuccessMessage()
+    {
+        return 'Namespace specified as array. One of path specefied as recursive search. This class not in recursove search';
+    }
 }
