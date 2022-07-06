@@ -52,8 +52,9 @@ class Loader
      * Load the configuration from specified file
      *
      * @param string $file
-     * @throws Exception
      * @return array
+     * 
+     * @throws Exception
      */
     private static function loadConfiguration(string $file): array
     {
@@ -71,8 +72,9 @@ class Loader
     /**
      * Boot Scal
      *
-     * @throws Exception
      * @return void
+     * 
+     * @throws Exception
      */
     public static function boot(): void
     {
@@ -195,8 +197,9 @@ class Loader
      * @param array|string $path
      * @param string $remain
      * @param string $file
-     * @throws Exception
      * @return ?string
+     * 
+     * @throws Exception
      */
     public static function findClassFile(string|array $path, string $remain, string $file): ?string
     {
@@ -222,8 +225,9 @@ class Loader
      * Class autoloader
      *
      * @param string $class
-     * @throws Exception
      * @return void
+     * 
+     * @throws Exception
      */
     public static function load(string $class): void
     {
