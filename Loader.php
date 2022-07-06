@@ -35,7 +35,7 @@ class Loader
      */
     private static function getConfigurationFile(): ?string
     {
-        $configurationFile = Path::glue(APP_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
+        $configurationFile = Path::glue(APP_BASE_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
 
         if (!file_exists($configurationFile)) {
             $configurationFile = Path::glue(SCAL_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
@@ -103,7 +103,7 @@ class Loader
         foreach ($rawNamespaceMapping as $namespace => $path) {
             $parsedPath = gettype($path) === 'array'
                 ? Path::parse($path)
-                : Path::parse(Path::glue(APP_ROOT_PATH, $path));
+                : Path::parse(Path::glue(APP_BASE_PATH, $path));
             if (!$parsedPath) continue;
 
             $namespaceMapping[$namespace] = $parsedPath;
@@ -120,7 +120,7 @@ class Loader
      */
     public static function getPathByNamespace(string $namespace): string
     {
-        return Path::glue(APP_ROOT_PATH, $namespace);
+        return Path::glue(APP_BASE_PATH, $namespace);
     }
 
     /**
