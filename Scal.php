@@ -24,16 +24,12 @@ if (!defined('NAMESPACE_SEPARATOR')) {
     define('NAMESPACE_SEPARATOR', '\\');
 }
 
-if (!defined('DIR_SEP')) {
-    define('DIR_SEP', DIRECTORY_SEPARATOR);
-}
-
 if (!defined('SCAL_ROOT_PATH')) {
     define('SCAL_ROOT_PATH', __DIR__);
 }
 
 if (!defined('SCAL_SUPPORT_PATH')) {
-    define('SCAL_SUPPORT_PATH', SCAL_ROOT_PATH . DIR_SEP . 'Support');
+    define('SCAL_SUPPORT_PATH', SCAL_ROOT_PATH . DIRECTORY_SEPARATOR . 'Support');
 }
 
 if (!defined('SCAL_TESTS_ENABLED')) {
@@ -44,15 +40,15 @@ if (!defined('SCAL_TESTS_ENABLED')) {
 
 // Dev mode
 if (SCAL_TESTS_ENABLED) {
-    require_once(SCAL_SUPPORT_PATH . DIR_SEP . 'Test.php');
+    require_once(SCAL_SUPPORT_PATH . DIRECTORY_SEPARATOR . 'Test.php');
 }
 
 
 // Support
-require_once SCAL_SUPPORT_PATH . DIR_SEP . 'Path.php';
+require_once SCAL_SUPPORT_PATH . DIRECTORY_SEPARATOR . 'Path.php';
 
 
 
 // Register Loader
-require_once SCAL_ROOT_PATH . DIR_SEP . 'Loader.php';
+require_once SCAL_ROOT_PATH . DIRECTORY_SEPARATOR . 'Loader.php';
 spl_autoload_register('Scal\Loader::load');

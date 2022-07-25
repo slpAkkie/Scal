@@ -48,7 +48,7 @@ class Path
      */
     public static function unify(string $path): string|array
     {
-        $path = preg_replace('/\\\/', DIR_SEP, $path);
+        $path = preg_replace('/\\\/', DIRECTORY_SEPARATOR, $path);
 
         if (str_ends_with($path, '*')) {
             $path = self::getSubdirectories(substr($path, 0, -2));
@@ -101,6 +101,6 @@ class Path
      */
     public static function glue(...$args): string
     {
-        return join(DIR_SEP, array_filter($args));
+        return join(DIRECTORY_SEPARATOR, array_filter($args));
     }
 }
