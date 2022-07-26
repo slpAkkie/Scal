@@ -96,10 +96,10 @@ class Path
     /**
      * Join parts of path to one string
      *
-     * @param array<string> $args
+     * @param array $args
      * @return string
      */
-    public static function glue(string ...$args): string
+    public static function glue(...$args): string
     {
         return join(DIRECTORY_SEPARATOR, array_filter($args));
     }
