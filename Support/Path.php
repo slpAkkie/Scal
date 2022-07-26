@@ -99,7 +99,7 @@ class Path
      * @param array<string> $args
      * @return string
      */
-    public static function glue(array ...$args): string
+    public static function glue(string ...$args): string
     {
         return join(DIRECTORY_SEPARATOR, array_filter($args));
     }
