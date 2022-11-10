@@ -1,19 +1,17 @@
-# Scal
-
 ## Description
 
-Simple class autoloader
+Simple class autoloader for PHP
 
 ## Installation
 
-Include `Scal.php` in your project.
-Use APP_BASE_PATH to specify root directory to find classes
+Include `Initializer.php` in your project.
+Use APP_ROOT_PATH to specify root directory to find classes from
 
 ## Use
 
 To specify namespace mapping use JSON file `Scal.json`
 
-## Configuration (Scal.json)
+### Configuration (autoload.conf.json)
 
 You should end both namespace and path with backslash
 
@@ -37,4 +35,4 @@ Alexandr Shamanin (@slpAkkie)
 
 ## Version
 
-2.2.2
+2.3.0

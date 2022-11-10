@@ -2,10 +2,6 @@
 
 namespace Scal;
 
-use Exception;
-use Scal\Support\Path;
-use Throwable;
-
 class Loader
 {
     /**
@@ -20,7 +16,14 @@ class Loader
      *
      * @var string
      */
-    private const DEFAULT_CONFIGURATION_FILENAME = 'Scal.json';
+    private const DEFAULT_CONFIGURATION_FILENAME = 'autoload.conf.json';
+
+    /**
+     * Namespace separator
+     *
+     * @var string
+     */
+    private const NAMESPACE_SEP = '\\';
 
     /**
      * Namespace map from configuration file
@@ -36,7 +39,7 @@ class Loader
      */
     private static function getConfigurationFile(): ?string
     {
-        $configurationFile = Path::glue(APP_BASE_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
+        $configurationFile = Path::glue(APP_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
 
         if (!file_exists($configurationFile)) {
             $configurationFile = Path::glue(SCAL_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
@@ -54,15 +57,14 @@ class Loader
      *
      * @param string $file
      * @return array
-     * 
-     * @throws Exception
+     * @throws \Exception
      */
     private static function loadConfiguration(string $file): array
     {
         $namespaceMapping = json_decode(file_get_contents($file), true);
 
         if (gettype($namespaceMapping) !== 'array') {
-            throw new Exception('Configuration file should contain an array');
+            throw new \Exception('Configuration file should contain an array');
         }
 
         if (key_exists('mapping', $namespaceMapping)) {
@@ -74,7 +76,7 @@ class Loader
      * Boot Scal
      *
      * @return void
-     * 
+     *
      * @throws Exception
      */
     public static function boot(): void
@@ -105,8 +107,8 @@ class Loader
         $namespaceMapping = [];
         foreach ($rawNamespaceMapping as $namespace => $path) {
             $parsedPath = gettype($path) === 'array'
-                ? Path::parse($path)
-                : Path::parse(Path::glue(APP_BASE_PATH, $path));
+                ? Path::parse(array_map(fn ($p) => Path::glue(APP_ROOT_PATH, $p), $path))
+                : Path::parse(Path::glue(APP_ROOT_PATH, $path));
             if (!$parsedPath) continue;
 
             $namespaceMapping[$namespace] = $parsedPath;
@@ -123,7 +125,7 @@ class Loader
      */
     public static function getPathByNamespace(string $namespace): string
     {
-        return Path::glue(APP_BASE_PATH, $namespace);
+        return Path::glue(APP_ROOT_PATH, $namespace);
     }
 
     /**
@@ -145,13 +147,13 @@ class Loader
      */
     public static function explodeClassName(string $class): array
     {
-        $exploded = explode(NAMESPACE_SEPARATOR, $class);
+        $exploded = explode(self::NAMESPACE_SEP, $class);
 
         if (count($exploded) === 1) {
             $namespace = '';
             $class = $exploded[0];
         } else {
-            $namespace = join(NAMESPACE_SEPARATOR, array_slice($exploded, 0, -1)) . NAMESPACE_SEPARATOR;
+            $namespace = join(self::NAMESPACE_SEP, array_slice($exploded, 0, -1)) . self::NAMESPACE_SEP;
             $class = $exploded[count($exploded) - 1];
         }
 
@@ -167,11 +169,12 @@ class Loader
      * @param string $namespace
      * @param string $class
      * @return string
+     * @throws \Exception
      */
     public static function getClassFile(string $classNamespace, string $class): string
     {
         // Try to get path by default
-        $path = self::getPathByNamespace($classNamespace);
+        $path = Path::unify(self::getPathByNamespace($classNamespace));
         $remainPath = '';
 
         // Try to find in configuration
@@ -186,7 +189,7 @@ class Loader
         $path = self::findClassFile($path, $remainPath, $class . '.php');
 
         if ($path === null) {
-            throw new Exception('Class file \'' . Path::glue($path, $remainPath, $class . '.php') . '\' not found');
+            throw new \Exception('Class file \'' . Path::glue($path, $remainPath, $class . '.php') . '\' not found');
         }
 
         return $path;
@@ -199,7 +202,7 @@ class Loader
      * @param string $remain
      * @param string $file
      * @return ?string
-     * 
+     *
      * @throws Exception
      */
     public static function findClassFile(string|array $path, string $remain, string $file): ?string
@@ -227,8 +230,7 @@ class Loader
      *
      * @param string $class
      * @return void
-     * 
-     * @throws Exception
+     * @throws \Exception
      */
     public static function load(string $class): void
     {
@@ -243,10 +245,10 @@ class Loader
             // Get file for class
             $file_path = self::getClassFile(...self::explodeClassName($class));
             if (!file_exists($file_path)) {
-                throw new Exception('Class not found');
+                throw new \Exception('Class not found');
             }
-        } catch (Throwable $e) {
-            return;
+        } catch (\Throwable $e) {
+            throw $e;
         }
 
         require_once($file_path);
