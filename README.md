@@ -2,16 +2,16 @@
 
 Simple class autoloader for PHP
 
-## Installation
+### Installation
 
 Include `Initializer.php` in your project.
 Use APP_ROOT_PATH to specify root directory to find classes from
 
-## Use
+### Use
 
 To specify namespace mapping use JSON file `Scal.json`
 
-### Configuration (autoload.conf.json)
+#### Configuration (autoload.conf.json)
 
 You should end both namespace and path with backslash
 
@@ -35,4 +35,4 @@ Alexandr Shamanin (@slpAkkie)
 
 ## Version
 
-2.3.0
+2.3.1
