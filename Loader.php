@@ -5,35 +5,35 @@ namespace Scal;
 class Loader
 {
     /**
-     * Is Loader has been booted
+     * Is Loader has been booted.
      *
      * @var bool
      */
     private static $booted = false;
 
     /**
-     * Default configuration file name
+     * Default configuration file name.
      *
      * @var string
      */
     private const DEFAULT_CONFIGURATION_FILENAME = 'autoload.conf.json';
 
     /**
-     * Namespace separator
+     * Namespace separator.
      *
      * @var string
      */
     private const NAMESPACE_SEP = '\\';
 
     /**
-     * Namespace map from configuration file
+     * Namespace map from configuration file.
      *
-     * @var array
+     * @var array<string, string|array<string>>
      */
     private static $namespaceMapping = [];
 
     /**
-     * Try to get configuration file
+     * Try to get configuration file.
      *
      * @return string|null
      */
@@ -53,10 +53,10 @@ class Loader
     }
 
     /**
-     * Load the configuration from specified file
+     * Load the configuration from specified file.
      *
      * @param string $file
-     * @return array
+     * @return array<string, string|array<string>>
      * @throws \Exception
      */
     private static function loadConfiguration(string $file): array
@@ -73,11 +73,10 @@ class Loader
     }
 
     /**
-     * Boot Scal
+     * Boot Scal.
      *
      * @return void
-     *
-     * @throws Exception
+     * @throws \Exception
      */
     public static function boot(): void
     {
@@ -98,9 +97,9 @@ class Loader
     }
 
     /**
-     * Unify namespace mapping
+     * Unify namespace mapping.
      *
-     * @return array
+     * @return array<string, string|array<string>>
      */
     public static function unifyMapping(array $rawNamespaceMapping): array
     {
@@ -118,7 +117,7 @@ class Loader
     }
 
     /**
-     * Get path to file of class
+     * Get path to file of class.
      *
      * @param string $namespace
      * @return string
@@ -129,10 +128,10 @@ class Loader
     }
 
     /**
-     * Get path to file of class
+     * Get path to file of class.
      *
      * @param string $namespace
-     * @return string|array
+     * @return string|array<string>
      */
     public static function getPathByConfiguration(string $namespace): string|array
     {
@@ -140,10 +139,10 @@ class Loader
     }
 
     /**
-     * Extract class namespace and class name
+     * Extract class namespace and class name.
      *
      * @param string $class
-     * @return array
+     * @return array<string>
      */
     public static function explodeClassName(string $class): array
     {
@@ -164,7 +163,7 @@ class Loader
     }
 
     /**
-     * Get class file path by namespace and class name
+     * Get class file path by namespace and class name.
      *
      * @param string $namespace
      * @param string $class
@@ -196,14 +195,14 @@ class Loader
     }
 
     /**
-     * Check if file exists and return it
+     * Check if file exists and return it.
      *
-     * @param array|string $path
+     * @param array<string>|string $path
      * @param string $remain
      * @param string $file
-     * @return ?string
+     * @return string|null
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public static function findClassFile(string|array $path, string $remain, string $file): ?string
     {
@@ -226,7 +225,7 @@ class Loader
     }
 
     /**
-     * Class autoloader
+     * Class autoloader.
      *
      * @param string $class
      * @return void
