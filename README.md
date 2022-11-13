@@ -9,7 +9,7 @@ Use APP_ROOT_PATH to specify root directory to find classes from
 
 ### Use
 
-To specify namespace mapping use JSON file `Scal.json`
+To specify namespace mapping use JSON file `autoload.conf.json`
 
 #### Configuration (autoload.conf.json)
 
