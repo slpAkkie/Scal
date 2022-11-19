@@ -1,19 +1,21 @@
-## Description
+## Описание
 
-Simple class autoloader for PHP
+Автозагрузчик классов для PHP
 
-### Installation
+### Установка
 
-Include `Initializer.php` in your project.
-Use APP_ROOT_PATH to specify root directory to find classes from
+Подключите файл `Initializer.php` в свой проект.
+Используйте константу APP_ROOT_PATH, чтобы указать корневой каталог проекта, откуда будет вестись поиск классов.
 
-### Use
+### Использование
 
-To specify namespace mapping use JSON file `autoload.conf.json`
+Чтобы указать директории для пространств имен используйте JSON файл `autoload.conf.json`
 
-#### Configuration (autoload.conf.json)
+#### Конфигурация (autoload.conf.json)
 
-You should end both namespace and path with backslash
+Для указания сопоставлений пространств имен (или их части) к директориям используйте свойства `mapping`
+
+При настройке конфигурации и пространства имен и пути должны заканчиваться двойным обратным слэшем, как показано в примере.
 
 ```json
 {
@@ -29,10 +31,10 @@ You should end both namespace and path with backslash
 }
 ```
 
-## Author
+## Автор
 
 Alexandr Shamanin (@slpAkkie)
 
-## Version
+## Версия
 
-2.3.1
+2.3.2

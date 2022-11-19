@@ -5,35 +5,38 @@ namespace Scal;
 class Path
 {
     /**
-     * Directories that should be skipped
+     * Директории, которые будут проигнорированы.
      *
-     * @var array
+     * @var array<string>
      */
-    private const DIRECTORIES_TO_SKIP = [
-        '.', '..',
+    private const IGNORE_DIRECTORIES = [
+        '.', '..', '.git', '.vscode', '.idea',
     ];
 
     /**
-     * Get subdirectories
+     * Получить папки для рекурсивных путей.
      *
      * @param string $path
-     * @return array
+     * @return array<string>
      */
-    public static function getSubdirectories(string $path): array
+    public static function getDirsForRecursivePath(string $path): array
     {
         $subdirectories = [
             $path,
         ];
 
         foreach (scandir($path) as $entry) {
-            if (in_array($entry, self::DIRECTORIES_TO_SKIP)) continue;
+            if (in_array($entry, self::IGNORE_DIRECTORIES)) {
+                continue;
+            }
+
             $entry = self::glue($path, $entry);
-            if (is_file($entry)) continue;
 
             if (is_dir($entry)) {
-                $subdirectories = array_merge(self::getSubdirectories(Path::glue($entry)), $subdirectories);
-            } else {
-                $subdirectories[] = $entry;
+                $subdirectories = array_merge(
+                    self::getDirsForRecursivePath(Path::glue($entry)),
+                    $subdirectories
+                );
             }
         }
 
@@ -41,66 +44,69 @@ class Path
     }
 
     /**
-     * Unify the path
+     * Привести путь к единому образу для загрузчика.
      *
      * @param string $path
-     * @return string|array
+     * @return string|array<string>
      */
     public static function unify(string $path): string|array
     {
         $path = preg_replace('/\\\/', DIRECTORY_SEPARATOR, $path);
 
         if (str_ends_with($path, '*')) {
-            $path = self::getSubdirectories(substr($path, 0, -2));
+            $path = self::getDirsForRecursivePath(
+                // Отрезать последние два символа указывающих на рекурсивный путь.
+                substr($path, 0, -2)
+            );
         }
 
         return $path;
     }
 
     /**
-     * Parse array of paths and make it uniformly
+     * Привести массив путей к единому образу для загрузчика.
      *
-     * @param array $arrayOfPath
-     * @return array
+     * @param array<string> $paths
+     * @return array<string>
      */
-    public static function parseArray(array $arrayOfPath): array
+    public static function parsePaths(array $paths): array
     {
-        foreach ($arrayOfPath as $k => $v) {
+        foreach ($paths as $k => $v) {
             $parsed = self::parse($v);
 
             if (is_array($parsed)) {
-                $arrayOfPath = array_merge($arrayOfPath, $parsed);
+                $paths = array_merge($paths, $parsed);
             } else {
-                $arrayOfPath[$k] = $parsed;
+                $paths[$k] = $parsed;
             }
         }
 
-        return $arrayOfPath;
+        return $paths;
     }
 
     /**
-     * Parse the path and make it uniformly
+     * Привести пути или массив путей к единому образу для загрузчика.
      *
-     * @param string|array $arg
-     * @return string|array|null
+     * @param string|array<string> $arg
+     * @return string|array<string>|null
      */
     public static function parse(string|array $arg): string|array|null
     {
         return match (gettype($arg)) {
             'string' => self::unify($arg),
-            'array' => self::parseArray($arg),
+            'array' => self::parsePaths($arg),
             default => null,
         };
     }
 
     /**
-     * Join parts of path to one string
+     * Склеить строки в строку пути.
      *
-     * @param array $args
+     * @param array<string> $args
      * @return string
      */
     public static function glue(...$args): string
     {
-        return join(DIRECTORY_SEPARATOR, array_filter($args));
+        return implode(DIRECTORY_SEPARATOR, array_filter($args));
     }
 }

@@ -5,155 +5,144 @@ namespace Scal;
 class Loader
 {
     /**
-     * Is Loader has been booted.
+     * Индикатор, что загрузчик уже запущен.
      *
      * @var bool
      */
-    private static $booted = false;
+    protected static $booted = false;
 
     /**
-     * Default configuration file name.
+     * Файл конфигурации по умолчанию.
      *
      * @var string
      */
-    private const DEFAULT_CONFIGURATION_FILENAME = 'autoload.conf.json';
+    protected const DEFAULT_CONFIGURATION_FILENAME = 'autoload.conf.json';
 
     /**
-     * Namespace separator.
+     * Разделитель пространства имен.
      *
      * @var string
      */
-    private const NAMESPACE_SEP = '\\';
+    protected const NAMESPACE_SEPARATOR = '\\';
 
     /**
-     * Namespace map from configuration file.
+     * Карты пространств имен, загруженная из конфигурации.
      *
      * @var array<string, string|array<string>>
      */
-    private static $namespaceMapping = [];
+    protected static $namespaceMap = [];
 
     /**
-     * Try to get configuration file.
+     * Получить путь к файлу конфигурации.
      *
      * @return string|null
      */
-    private static function getConfigurationFile(): ?string
+    protected static function getConfigurationFilePath(): ?string
     {
-        $configurationFile = Path::glue(APP_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
+        $filePath = Path::glue(APP_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
 
-        if (!file_exists($configurationFile)) {
-            $configurationFile = Path::glue(SCAL_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
+        if (!file_exists($filePath)) {
+            $filePath = Path::glue(SCAL_ROOT_PATH, self::DEFAULT_CONFIGURATION_FILENAME);
 
-            if (!file_exists($configurationFile)) {
-                $configurationFile = null;
+            if (!file_exists($filePath)) {
+                $filePath = null;
             }
         }
 
-        return $configurationFile;
+        return $filePath;
     }
 
     /**
-     * Load the configuration from specified file.
+     * Загрузить конфигурацию из файла.
      *
-     * @param string $file
+     * @param string $file Путь к файлу с конфигурацией.
      * @return array<string, string|array<string>>
      * @throws \Exception
      */
-    private static function loadConfiguration(string $file): array
+    protected static function loadConfiguration(string $file): array
     {
-        $namespaceMapping = json_decode(file_get_contents($file), true);
+        $configuration = json_decode(file_get_contents($file), true);
 
-        if (gettype($namespaceMapping) !== 'array') {
-            throw new \Exception('Configuration file should contain an array');
+        if (gettype($configuration) !== 'array') {
+            throw new \Exception('Файл конфигурации имеет неверную структуру');
         }
 
-        if (key_exists('mapping', $namespaceMapping)) {
-            return $namespaceMapping['mapping'];
+        if (key_exists('mapping', $configuration)) {
+            return $configuration['mapping'];
         }
+
+        return [];
     }
 
     /**
-     * Boot Scal.
+     * Запустить загрузчик.
      *
      * @return void
      * @throws \Exception
      */
-    public static function boot(): void
+    protected static function boot(): void
     {
-        // Get configuration file
-        $configurationFile = self::getConfigurationFile();
-        $namespaceMapping = [];
+        // Получаем путь к конфигурационному файлу.
+        $configurationFile = self::getConfigurationFilePath();
+        $namespaceMap = [];
 
-        // Load the configuration
+        // Загружаем конфигурацию.
         if ($configurationFile !== null) {
-            $namespaceMapping = self::loadConfiguration($configurationFile);
+            $namespaceMap = self::loadConfiguration($configurationFile);
         }
 
-        // Unify mapping
-        self::$namespaceMapping = self::unifyMapping($namespaceMapping);
+        // Приводим пути к единому образу.
+        self::$namespaceMap = self::unifyMapping($namespaceMap);
 
-        // Indicate that Loader has been booted
+        // Отмечаем загрузчик как уже запущенный.
         self::$booted = true;
     }
 
     /**
-     * Unify namespace mapping.
+     * Привести карту пространств имен к единому образу.
      *
+     * @param array<string, string|array<string>> $namespaceMap
      * @return array<string, string|array<string>>
      */
-    public static function unifyMapping(array $rawNamespaceMapping): array
+    protected static function unifyMapping(array $namespaceMap): array
     {
-        $namespaceMapping = [];
-        foreach ($rawNamespaceMapping as $namespace => $path) {
-            $parsedPath = gettype($path) === 'array'
-                ? Path::parse(array_map(fn ($p) => Path::glue(APP_ROOT_PATH, $p), $path))
-                : Path::parse(Path::glue(APP_ROOT_PATH, $path));
-            if (!$parsedPath) continue;
+        $unifiedMap = [];
 
-            $namespaceMapping[$namespace] = $parsedPath;
+        foreach ($namespaceMap as $namespace => $path) {
+            $parsedPath = gettype($path) === 'array'
+                ? Path::parse(
+                    array_map(
+                        fn ($p) => Path::glue(APP_ROOT_PATH, $p),
+                        $path
+                    )
+                )
+                : Path::parse(Path::glue(APP_ROOT_PATH, $path));
+
+            if ($parsedPath) {
+                $unifiedMap[$namespace] = $parsedPath;
+            }
         }
 
-        return $namespaceMapping;
+        return $unifiedMap;
     }
 
     /**
-     * Get path to file of class.
-     *
-     * @param string $namespace
-     * @return string
-     */
-    public static function getPathByNamespace(string $namespace): string
-    {
-        return Path::glue(APP_ROOT_PATH, $namespace);
-    }
-
-    /**
-     * Get path to file of class.
-     *
-     * @param string $namespace
-     * @return string|array<string>
-     */
-    public static function getPathByConfiguration(string $namespace): string|array
-    {
-        return self::$namespaceMapping[$namespace];
-    }
-
-    /**
-     * Extract class namespace and class name.
+     * Разобрать класс на пространство имен и название класса.
      *
      * @param string $class
      * @return array<string>
      */
-    public static function explodeClassName(string $class): array
+    protected static function explodeClass(string $class): array
     {
-        $exploded = explode(self::NAMESPACE_SEP, $class);
+        $exploded = explode(self::NAMESPACE_SEPARATOR, $class);
 
         if (count($exploded) === 1) {
             $namespace = '';
             $class = $exploded[0];
         } else {
-            $namespace = join(self::NAMESPACE_SEP, array_slice($exploded, 0, -1)) . self::NAMESPACE_SEP;
-            $class = $exploded[count($exploded) - 1];
+            $explodedNamespace = array_slice($exploded, 0, -1);
+            $namespace = implode(self::NAMESPACE_SEPARATOR, $explodedNamespace) . self::NAMESPACE_SEPARATOR;
+            $class = end($exploded);
         }
 
         return [
@@ -163,69 +152,67 @@ class Loader
     }
 
     /**
-     * Get class file path by namespace and class name.
+     * Получить путь к файлу с классом.
      *
      * @param string $namespace
      * @param string $class
      * @return string
-     * @throws \Exception
      */
-    public static function getClassFile(string $classNamespace, string $class): string
+    protected static function getClassFile(string $namespace, string $class): string
     {
-        // Try to get path by default
-        $path = Path::unify(self::getPathByNamespace($classNamespace));
+        $path = Path::unify(Path::glue(APP_ROOT_PATH, $namespace));
         $remainPath = '';
 
-        // Try to find in configuration
-        foreach (self::$namespaceMapping as $namespacePart => $v) {
-            if (str_starts_with($classNamespace, $namespacePart)) {
+        foreach (self::$namespaceMap as $n => $v) {
+            if (str_starts_with($namespace, $n)) {
                 $path = $v;
-                $remainPath = Path::unify(substr($classNamespace, strlen($namespacePart)));
+                $remainPath = Path::unify(substr($namespace, strlen($n)));
             }
         }
 
-        // Check if file exists and return it
         $path = self::findClassFile($path, $remainPath, $class . '.php');
-
-        if ($path === null) {
-            throw new \Exception('Class file \'' . Path::glue($path, $remainPath, $class . '.php') . '\' not found');
-        }
 
         return $path;
     }
 
     /**
-     * Check if file exists and return it.
+     * Найти файл по указанным путям.
      *
-     * @param array<string>|string $path
+     * @param string|array<string> $path
      * @param string $remain
      * @param string $file
      * @return string|null
      *
      * @throws \Exception
      */
-    public static function findClassFile(string|array $path, string $remain, string $file): ?string
+    protected static function findClassFile(string|array $path, string $remain, string $file): ?string
     {
         return match (gettype($path)) {
-            // If Path is a string try to find class file here
+            // Если $path строка, то пытаемся найти файл по этому пути.
             'string' => (function () use ($path, $remain, $file) {
                 if (file_exists($filePath = Path::glue($path, $remain, $file))) {
                     return $filePath;
                 }
+
+                // Если файл не найден вернем null.
+                return null;
             })(),
-            // Or if it is an array check all possible directories
+            // Если это массив, то перебираем все пути и ищем файл в них.
             'array' => (function () use ($path, $remain, $file) {
                 foreach ($path as $p) {
                     if (file_exists($filePath = Path::glue($p, $remain, $file))) {
                         return $filePath;
                     }
                 }
+
+                // Если файл не найден вернем null.
+                return null;
             })(),
         };
     }
 
     /**
-     * Class autoloader.
+     * Подключить класс.
      *
      * @param string $class
      * @return void
@@ -233,7 +220,7 @@ class Loader
      */
     public static function load(string $class): void
     {
-        // Check if Scal not booted
+        // Если загрузчик еще не запущен - запустим его.
         if (!self::$booted) {
             self::boot();
         }
@@ -241,13 +228,13 @@ class Loader
         $file_path = '';
 
         try {
-            // Get file for class
-            $file_path = self::getClassFile(...self::explodeClassName($class));
-            if (!file_exists($file_path)) {
-                throw new \Exception('Class not found');
-            }
+            $file_path = self::getClassFile(...self::explodeClass($class));
         } catch (\Throwable $e) {
             throw $e;
+        }
+
+        if (!file_exists($file_path)) {
+            throw new \Exception('Класс [' . $class . '] не найден');
         }
 
         require_once($file_path);
