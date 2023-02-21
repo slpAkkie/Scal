@@ -1,3 +1,3 @@
 [submodule "tests/TestModule"]
 	path = tests/TestModule
-	url = git@github.com:slpAkkie/php-test-module
+	url = https://github.com/slpAkkie/php-test-module
