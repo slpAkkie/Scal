@@ -53,6 +53,7 @@ class Loader
      */
     public static function fromJson(string $path): void
     {
+        $jsonRootPath = dirname($path);
         $jsonContent = @file_get_contents($path);
         if ($jsonContent === false) {
             require_once __DIR__ . '/Exceptions/ConfigurationCannotBeReadException.php';
@@ -72,9 +73,9 @@ class Loader
 
         foreach ($parsedArray['psr-4'] as $prefix => $path) {
             if (key_exists($prefix, self::$prefixes)) {
-                self::addPath($prefix, $path);
+                self::addPath($prefix, $path, $jsonRootPath);
             } else {
-                self::addPrefix($prefix, $path);
+                self::addPrefix($prefix, $path, $jsonRootPath);
             }
         }
     }
@@ -84,15 +85,16 @@ class Loader
      *
      * @param string $prefix
      * @param string $path
+     * @param string $rootPath
      * @return void
      */
-    public static function addPath(string $prefix, string $path): void
+    public static function addPath(string $prefix, string $path, string $rootPath = ''): void
     {
         if (in_array($path, self::$prefixes[$prefix])) {
             return;
         }
 
-        self::$prefixes[$prefix][] = $path;
+        self::$prefixes[$prefix][] = self::concatPath($rootPath, $path);
     }
 
     /**
@@ -100,15 +102,30 @@ class Loader
      *
      * @param string $prefix
      * @param array $path
+     * @param string $rootPath
      * @return void
      */
-    public static function addPaths(string $prefix, array $paths): void
+    public static function addPaths(string $prefix, array $paths, string $rootPath = ''): void
     {
         $paths = array_filter($paths, function ($path) use ($prefix) {
             return !in_array($path, self::$prefixes[$prefix]);
         });
 
+        $paths = array_map(fn ($path) => self::concatPath($rootPath, $path), $paths);
+
         self::$prefixes[$prefix] = array_merge(self::$prefixes[$prefix], $paths);
+    }
+
+    /**
+     * Соединяет два пути
+     *
+     * @param string $str1
+     * @param string $str2
+     * @return string
+     */
+    private static function concatPath(string $str1, string $str2): string
+    {
+        return rtrim($str1, '\\/') . '/' . trim($str2, '\\/');
     }
 
     /**
@@ -116,9 +133,10 @@ class Loader
      *
      * @param string $prefix
      * @param string $path
+     * @param string $rootPath
      * @return void
      */
-    public static function addPrefix(string $prefix, string|array $path): void
+    public static function addPrefix(string $prefix, string|array $path, string $rootPath = ''): void
     {
         if (key_exists($prefix, self::$prefixes)) {
             return;
@@ -127,9 +145,9 @@ class Loader
         self::$prefixes[$prefix] = array();
 
         if (is_array($path)) {
-            self::addPaths($prefix, $path);
+            self::addPaths($prefix, $path, $rootPath);
         } else {
-            self::addPath($prefix, $path);
+            self::addPath($prefix, $path, $rootPath);
         }
     }
 
@@ -168,7 +186,7 @@ class Loader
     {
         $classPath = str_replace(
             array($prefix, '\\',),
-            array(rtrim($path, '\\/') . '/', '/'),
+            array($path . '/', '/'),
             $class
         );
 
