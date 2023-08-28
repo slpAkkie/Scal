@@ -57,7 +57,7 @@ class Loader
         $jsonContent = @file_get_contents($path);
         if ($jsonContent === false) {
             require_once __DIR__ . '/Exceptions/ConfigurationCannotBeReadException.php';
-            throw new Exceptions\ConfigurationCannotBeReadException(error_get_last());
+            throw new Exceptions\ConfigurationCannotBeReadException(error_get_last()['message']);
         }
 
         $parsedArray = json_decode($jsonContent, true);
