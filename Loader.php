@@ -1,6 +1,6 @@
 <?php
 
-namespace Uwi;
+namespace Uwi\Loader;
 
 /**
  * ---------------------------------------------------------------------------
@@ -53,6 +53,8 @@ class Loader
      */
     public static function fromJson(string $path): void
     {
+        $path = realpath($path);
+
         $jsonRootPath = dirname($path);
         $jsonContent = @file_get_contents($path);
         if ($jsonContent === false) {
@@ -71,11 +73,11 @@ class Loader
             throw new Exceptions\JsonSchemaException('Key [psr-4] doesn\'t exists');
         }
 
-        foreach ($parsedArray['psr-4'] as $prefix => $path) {
+        foreach ($parsedArray['psr-4'] as $prefix => $value) {
             if (key_exists($prefix, self::$prefixes)) {
-                self::addPath($prefix, $path, $jsonRootPath);
+                self::addPath($prefix, $value, $jsonRootPath);
             } else {
-                self::addPrefix($prefix, $path, $jsonRootPath);
+                self::addPrefix($prefix, $value, $jsonRootPath);
             }
         }
     }

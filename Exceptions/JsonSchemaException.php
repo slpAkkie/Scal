@@ -1,6 +1,6 @@
 <?php
 
-namespace Uwi\Exceptions;
+namespace Uwi\Loader\Exceptions;
 
 class JsonSchemaException extends \Exception
 {
